@@ -7,6 +7,16 @@ from models import Action
 app = FastAPI()
 env = MedicineEnv(task="easy")  #  default task
 
+from fastapi.responses import RedirectResponse
+
+@app.get("/")
+def root():
+    return {"message": "Medicine Adherence API is running"}
+
+@app.get("/web")
+def web():
+    return RedirectResponse(url="/docs")
+
 
 @app.post("/reset")
 def reset():
