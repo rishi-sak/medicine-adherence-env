@@ -1,6 +1,14 @@
-# 💊 Medicine Adherence Environment (OpenEnv)
+---
+title: Medicine Adherence Environment
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 8000
+---
 
-## 📌 Overview
+#  Medicine Adherence Environment (OpenEnv)
+
+##  Overview
 
 This project implements a **real-world reinforcement learning environment** that simulates **patient medicine adherence behavior**.
 
@@ -16,7 +24,7 @@ The environment models how an AI agent can:
 
 ---
 
-## 🎯 Motivation
+##  Motivation
 
 Medication non-adherence is a major real-world problem, especially among:
 
@@ -34,11 +42,11 @@ This environment allows AI agents to learn:
 
 - How to minimize missed doses
 
-👉 It closely mimics real-world healthcare assistant systems.
+ It closely mimics real-world healthcare assistant systems.
 
 ---
 
-## 🧠 Environment Design
+##  Environment Design
 
 The environment follows the standard OpenEnv API:
 
@@ -50,7 +58,7 @@ The environment follows the standard OpenEnv API:
 
 ---
 
-## 🔍 Observation Space
+##  Observation Space
 
 ```json
 
@@ -81,7 +89,7 @@ The environment follows the standard OpenEnv API:
 } 
 
 
-🎮 Action Space
+ Action Space
 ---------------
 
 {\
@@ -96,52 +104,52 @@ The environment follows the standard OpenEnv API:
 -   **notify_caretaker** → Escalate to caretaker
 -   **reschedule** → Adjust medicine timing
 
-🧪 Tasks & Difficulty Levels
+ Tasks & Difficulty Levels
 ----------------------------
 
-### 🟢 Easy
+###  Easy
 
 -   Few medicines
 -   Simple timing
 -   Minimal penalties
 
-👉 Goal: Take all medicines on time
+ Goal: Take all medicines on time
 
 * * * * *
 
-### 🟡 Medium
+###  Medium
 
 -   More medicines
 -   Delayed schedules
 -   Moderate penalties
 
-👉 Goal: Handle missed doses efficiently
+ Goal: Handle missed doses efficiently
 
 * * * * *
 
-### 🔴 Hard
+###  Hard
 
 -   Multiple medicines
 -   Strict timing constraints
 -   Strong penalties for mistakes
 
-👉 Goal: Optimize adherence and minimize missed doses
+ Goal: Optimize adherence and minimize missed doses
 
 * * * * *
 
-⚙️ Reward Design
+ Reward Design
 ----------------
 
--   ✅ Correct action → Positive reward
--   ❌ Early intake → Penalty
--   ❌ Missed dose → Strong penalty
--   ⚠️ High-risk patient → Extra penalty
+-    Correct action → Positive reward
+-    Early intake → Penalty
+-    Missed dose → Strong penalty
+-    High-risk patient → Extra penalty
 
-👉 Encourages **timing-aware decision making**
+ Encourages **timing-aware decision making**
 
 * * * * *
 
-🚀 Setup Instructions
+ Setup Instructions
 ---------------------
 
 ### 1\. Clone repository
@@ -173,7 +181,7 @@ http://localhost:8000/docs
 
 * * * * *
 
-🐳 Docker Usage
+ Docker Usage
 ---------------
 
 docker build -t medicine-env .\
@@ -181,7 +189,7 @@ docker run -p 8000:8000 medicine-env
 
 * * * * *
 
-📊 Baseline Performance
+ Baseline Performance
 -----------------------
 
 | Task  | Steps | Rewards                                     |
@@ -190,23 +198,23 @@ docker run -p 8000:8000 medicine-env
 | Medium| 5     | 1.00, -0.50, 1.00, -0.50, 1.00              |
 | Hard  | 7     | 1.00, -0.50, 1.00, -0.50, 1.00, -0.50, 1.00 |
 
-👉 Shows increasing difficulty and decision complexity
+ Shows increasing difficulty and decision complexity
 
 * * * * *
 
-🧩 Key Features
+ Key Features
 ---------------
 
--   ✅ Time-aware environment
--   ✅ Real-world healthcare simulation
--   ✅ Multi-task difficulty levels
--   ✅ Reward shaping for learning
--   ✅ OpenEnv compatible
--   ✅ API + Docker ready
+-    Time-aware environment
+-    Real-world healthcare simulation
+-    Multi-task difficulty levels
+-    Reward shaping for learning
+-    OpenEnv compatible
+-    API + Docker ready
 
 * * * * *
 
-🏁 Conclusion
+ Conclusion
 -------------
 
 This environment provides a **realistic, scalable, and structured RL problem** where agents must learn:
@@ -215,11 +223,11 @@ This environment provides a **realistic, scalable, and structured RL problem** w
 -   What action to take
 -   How to minimize risk
 
-👉 Making it ideal for training **intelligent healthcare assistants**
+ Making it ideal for training **intelligent healthcare assistants**
 
 * * * * *
 
-👨‍💻 Author
+ Author
 ------------
 
 Rishi, Tanishq, Akash
