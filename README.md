@@ -3,7 +3,7 @@ title: Medicine Adherence Environment
 colorFrom: blue
 colorTo: green
 sdk: docker
-app_port: 8000
+app_port: 7860
 ---
 
 #  Medicine Adherence Environment (OpenEnv)
@@ -177,7 +177,7 @@ python server/app.py
 
 Then open:
 
-http://localhost:8000/docs
+http://localhost:7860/docs
 
 * * * * *
 
@@ -185,7 +185,7 @@ http://localhost:8000/docs
 ---------------
 
 docker build -t medicine-env .\
-docker run -p 8000:8000 medicine-env
+docker run -p 7860:7860 medicine-env
 
 * * * * *
 
