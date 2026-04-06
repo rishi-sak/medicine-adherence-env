@@ -1,0 +1,44 @@
+name: medicine-adherence-env
+description: A real-world AI environment simulating patient medicine adherence and reminder systems
+version: 1.0
+
+observation_space:
+  type: object
+  properties:
+    current_time:
+      type: string
+    medicines:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+          time:
+            type: string
+          taken:
+            type: boolean
+          missed:
+            type: boolean
+    missed_doses:
+      type: integer
+    patient_risk:
+      type: string
+      enum: [low, medium, high]
+  required:
+    - current_time
+    - medicines
+    - missed_doses
+    - patient_risk
+
+action_space:
+  type: object
+  properties:
+    action_type:
+      type: string
+      enum: [mark_taken, send_reminder, notify_caretaker, reschedule]
+    medicine_name:
+      type: string
+  required:
+    - action_type
+    - medicine_name

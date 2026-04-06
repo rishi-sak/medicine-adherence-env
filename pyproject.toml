@@ -1,0 +1,20 @@
+[project]
+name = "medicine-adherence-env"
+version = "0.1.0"
+description = "AI environment for medicine adherence simulation"
+authors = ["Rishi"]
+requires-python = ">=3.10"
+
+dependencies = [
+    "pydantic",
+    "openenv-core",
+    "openai",
+    "fastapi",
+    "uvicorn"
+]
+
+[project.scripts]
+server = "server.app:main"
+
+[tool.openenv]
+entrypoint = "env:MedicineEnv"
