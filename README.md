@@ -1,6 +1,5 @@
 ---
 title: Medicine Adherence Environment
-emoji: 
 colorFrom: blue
 colorTo: green
 sdk: docker
