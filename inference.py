@@ -136,7 +136,12 @@ def run_task(task_name):
             break
 
     #  grading
+    EPS = 1e-6
     score = grade(task_name, state)
+
+    # Ensure strict (0,1) range
+    score = max(EPS, min(1 - EPS, score))
+
     success = score > 0.5
 
     log_end(success, step_num, rewards)

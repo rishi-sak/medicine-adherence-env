@@ -1,28 +1,34 @@
 def grade(task_name, state):
+    EPS = 1e-6  # small value to keep score inside (0,1)
 
     total_meds = len(state.medicines)
+    if total_meds == 0:
+        return 0.5  # safe fallback (inside range)
+
     taken = sum(1 for m in state.medicines if m.taken)
     missed = state.missed_doses
 
+    def clamp(score):
+        return max(EPS, min(1 - EPS, round(score, 4)))
+
     if task_name == "easy":
-        # proportion of medicines taken
-        return round(taken / total_meds, 2)
+        score = taken / total_meds
+        return clamp(score)
 
     elif task_name == "medium":
-        # reward fewer missed doses + partial progress
         adherence_score = taken / total_meds
         penalty = missed * 0.2
         score = adherence_score - penalty
-        return max(0.0, round(score, 2))
+        return clamp(score)
 
     elif task_name == "hard":
-        # stricter scoring with higher penalty
         adherence_score = taken / total_meds
         penalty = missed * 0.3
 
-        # bonus if all taken without miss
-        if missed == 0 and taken == total_meds:
-            return 1.0
-
         score = adherence_score - penalty
-        return max(0.0, round(score, 2))
+
+        # even perfect case must not be 1.0
+        if missed == 0 and taken == total_meds:
+            score = 1 - EPS
+
+        return clamp(score)
