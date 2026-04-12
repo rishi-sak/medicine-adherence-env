@@ -16,6 +16,17 @@ client = OpenAI(
 )
 
 ENV_NAME = "medicine"
+LO = 0.001
+HI = 0.999
+
+def safe_score(x):
+    try:
+        v = float(x)
+        if v != v:  # NaN
+            return 0.5
+        return max(LO, min(HI, v))
+    except Exception:
+        return 0.5
 
 
 def log_start(task):
@@ -24,15 +35,15 @@ def log_start(task):
 
 def log_step(step, action, reward, done):
     print(
-        f"[STEP] step={step} action={action} reward={reward:.2f} done={str(done).lower()} error=null",
+        f"[STEP] step={step} action={action} reward={safe_score(reward):.4f} done={str(done).lower()} error=null",
         flush=True,
     )
 
 
-def log_end(success, steps, rewards):
-    rewards_str = ",".join(f"{r:.2f}" for r in rewards)
+def log_end(success, steps, rewards, score):
+    rewards_str = ",".join(f"{safe_score(r):.4f}" for r in rewards)
     print(
-        f"[END] success={str(success).lower()} steps={steps} rewards={rewards_str}",
+        f"[END] success={str(success).lower()} steps={steps} rewards={rewards_str} score={safe_score(score):.4f}",
         flush=True,
     )
 
@@ -44,7 +55,6 @@ def call_llm(state):
     Missed: {state.missed_doses}
     Risk: {state.patient_risk}
     """
-
     try:
         response = client.chat.completions.create(
             model=MODEL_NAME,
@@ -60,18 +70,15 @@ def call_llm(state):
 
 
 def choose_action(state):
-    # MANDATORY LLM CALL (required for validation)
     call_llm(state)
 
     current_time = state.current_time
     medicines = sorted(state.medicines, key=lambda m: m.time)
 
-    # First priority: take any due medicines
     for med in medicines:
         if not med.taken and current_time >= med.time:
             return Action(action_type="mark_taken", medicine_name=med.name)
 
-    # Second priority: remind for upcoming medicines
     for med in medicines:
         if not med.taken and current_time < med.time:
             return Action(action_type="send_reminder", medicine_name=med.name)
@@ -103,17 +110,10 @@ def run_task(task_name):
         if result.done:
             break
 
-    # grade() already returns a value strictly in (0, 1)
-    # Defensive clamp here guards against any unexpected edge case
     raw_score = grade(task_name, state)
-    if not isinstance(raw_score, (int, float)) or raw_score != raw_score:  # NaN check
-        raw_score = 0.5
-
-    LO, HI = 1e-6, 1 - 1e-6
-    score = max(LO, min(HI, float(raw_score)))
-
+    score = safe_score(raw_score)
     success = score > 0.5
-    log_end(success, step_num, rewards)
+    log_end(success, step_num, rewards, score)
 
 
 def main():
