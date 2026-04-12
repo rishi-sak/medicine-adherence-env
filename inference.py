@@ -80,17 +80,20 @@ def choose_action(state):
 
     current_time = state.current_time
 
+    # Sort medicines by time (important for consistency)
+    medicines = sorted(state.medicines, key=lambda m: m.time)
+
     # First priority: take due medicines
-    for med in state.medicines:
+    for med in medicines:
         if not med.taken and current_time >= med.time:
             return Action(
                 action_type="mark_taken",
                 medicine_name=med.name
             )
 
-    # Second: send reminder for upcoming meds
-    for med in state.medicines:
-        if not med.taken:
+    # Second: reminder only if close to time (prevents spam)
+    for med in medicines:
+        if not med.taken and current_time < med.time:
             return Action(
                 action_type="send_reminder",
                 medicine_name=med.name
