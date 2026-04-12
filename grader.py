@@ -9,7 +9,26 @@ def grade(task_name, state):
     missed = state.missed_doses
 
     def clamp(score):
-        return max(EPS, min(1 - EPS, round(score, 4)))
+        # Handle invalid values
+        if score is None:
+            return 0.5
+
+        # First clamp raw value
+        if score <= 0:
+            score = EPS
+        elif score >= 1:
+            score = 1 - EPS
+
+        # Then round
+        score = round(score, 4)
+
+        # Final safety clamp after rounding
+        if score <= 0:
+            return EPS
+        if score >= 1:
+            return 1 - EPS
+
+        return score
 
     if task_name == "easy":
         score = taken / total_meds

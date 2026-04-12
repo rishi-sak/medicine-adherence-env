@@ -62,7 +62,6 @@ def call_llm(state):
             temperature=0
         )
 
-        # Return content if needed (optional)
         return response.choices[0].message.content
 
     except Exception:
@@ -76,30 +75,26 @@ def choose_action(state):
     - Uses smart logic (for scoring)
     """
 
-    #  MANDATORY LLM CALL
+    # MANDATORY LLM CALL
     call_llm(state)
 
-    #  SMART LOGIC 
     current_time = state.current_time
 
+    # First priority: take due medicines
     for med in state.medicines:
-
-        # Skip already taken
-        if med.taken:
-            continue
-
-        # If time reached → take medicine
-        if current_time >= med.time:
+        if not med.taken and current_time >= med.time:
             return Action(
                 action_type="mark_taken",
                 medicine_name=med.name
             )
 
-        # If before time → reminder
-        return Action(
-            action_type="send_reminder",
-            medicine_name=med.name
-        )
+    # Second: send reminder for upcoming meds
+    for med in state.medicines:
+        if not med.taken:
+            return Action(
+                action_type="send_reminder",
+                medicine_name=med.name
+            )
 
     return None
 
