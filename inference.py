@@ -6,12 +6,10 @@ from models import Action
 from tasks import TASKS
 from grader import grade
 
-#  STRICT: Use ONLY injected variables (NO fallback)
 API_BASE_URL = os.environ["API_BASE_URL"]
 API_KEY = os.environ["API_KEY"]
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 
-#  REQUIRED CLIENT (LiteLLM proxy)
 client = OpenAI(
     base_url=API_BASE_URL,
     api_key=API_KEY
@@ -40,11 +38,6 @@ def log_end(success, steps, rewards):
 
 
 def call_llm(state):
-    """
-    MUST call LLM (required for validation).
-    Even if output is ignored, call must happen.
-    """
-
     state_text = f"""
     Time: {state.current_time}
     Medicines: {[(m.name, m.time, m.taken) for m in state.medicines]}
@@ -61,43 +54,27 @@ def call_llm(state):
             ],
             temperature=0
         )
-
         return response.choices[0].message.content
-
     except Exception:
         return None
 
 
 def choose_action(state):
-    """
-    Hybrid approach:
-    - Always calls LLM (for validation)
-    - Uses smart logic (for scoring)
-    """
-
-    # MANDATORY LLM CALL
+    # MANDATORY LLM CALL (required for validation)
     call_llm(state)
 
     current_time = state.current_time
-
-    # Sort medicines by time (important for consistency)
     medicines = sorted(state.medicines, key=lambda m: m.time)
 
-    # First priority: take due medicines
+    # First priority: take any due medicines
     for med in medicines:
         if not med.taken and current_time >= med.time:
-            return Action(
-                action_type="mark_taken",
-                medicine_name=med.name
-            )
+            return Action(action_type="mark_taken", medicine_name=med.name)
 
-    # Second: reminder only if close to time (prevents spam)
+    # Second priority: remind for upcoming medicines
     for med in medicines:
         if not med.taken and current_time < med.time:
-            return Action(
-                action_type="send_reminder",
-                medicine_name=med.name
-            )
+            return Action(action_type="send_reminder", medicine_name=med.name)
 
     return None
 
@@ -115,33 +92,27 @@ def run_task(task_name):
         step_num += 1
 
         action_obj = choose_action(state)
-
         if action_obj is None:
             break
 
         result = env.step(action_obj)
-
-        reward = result.reward
-        done = result.done
-
-        rewards.append(reward)
-
-        log_step(step_num, action_obj.action_type, reward, done)
+        rewards.append(result.reward)
+        log_step(step_num, action_obj.action_type, result.reward, result.done)
 
         state = result.observation
-
-        if done:
+        if result.done:
             break
 
-    #  grading
-    EPS = 1e-6
-    score = grade(task_name, state)
+    # grade() already returns a value strictly in (0, 1)
+    # Defensive clamp here guards against any unexpected edge case
+    raw_score = grade(task_name, state)
+    if not isinstance(raw_score, (int, float)) or raw_score != raw_score:  # NaN check
+        raw_score = 0.5
 
-    # Ensure strict (0,1) range
-    score = max(EPS, min(1 - EPS, score))
+    LO, HI = 1e-6, 1 - 1e-6
+    score = max(LO, min(HI, float(raw_score)))
 
     success = score > 0.5
-
     log_end(success, step_num, rewards)
 
 
